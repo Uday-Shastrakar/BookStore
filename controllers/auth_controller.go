@@ -3,9 +3,11 @@ package controllers
 import (
 	"bookstore/database"
 	"bookstore/models"
+	"bookstore/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func Register(c *gin.Context) {
@@ -14,8 +16,16 @@ func Register(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
+		return
+	}
+	user.Password = string(hashedPassword)
+
 	database.GetDB().Create(&user)
-	c.JSON(http.StatusOK, user)
+	c.JSON(http.StatusOK, gin.H{"message": "User registered successfully"})
 }
 
 func Login(c *gin.Context) {
@@ -27,11 +37,24 @@ func Login(c *gin.Context) {
 
 	var user models.User
 	db := database.GetDB()
-	db.Where("username = ? AND password = ?", input.Username, input.Password).First(&user)
+	db.Where("username = ?", input.Username).First(&user)
+
 	if user.ID == 0 {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": "mock-jwt-token"}) // Replace with real JWT token logic
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password))
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
+		return
+	}
+
+	token, err := utils.GenerateJWT(user.Username)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Token generation failed"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"token": token})
 }
