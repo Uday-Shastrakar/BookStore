@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 function Navbar() {
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
+  const isLoggedIn = !!localStorage.getItem("token");
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -10,17 +10,28 @@ function Navbar() {
   };
 
   return (
-    <nav style={{ padding: "1rem", borderBottom: "1px solid #ccc" }}>
-      <Link to="/">Books</Link> |{" "}
-      <Link to="/add">Add Book</Link> |{" "}
-      {!token ? (
-        <>
-          <Link to="/login">Login</Link> |{" "}
-          <Link to="/register">Register</Link>
-        </>
-      ) : (
-        <button onClick={handleLogout}>Logout</button>
-      )}
+    <nav className="bg-blue-600 text-white p-4 flex justify-between items-center">
+      <h1 className="text-xl font-bold">Bookstore</h1>
+      <div className="space-x-4">
+        <Link to="/" className="hover:underline">Books</Link>
+        {isLoggedIn && (
+          <Link to="/add" className="hover:underline">Add Book</Link>
+        )}
+        {!isLoggedIn && (
+          <>
+            <Link to="/login" className="hover:underline">Login</Link>
+            <Link to="/register" className="hover:underline">Register</Link>
+          </>
+        )}
+        {isLoggedIn && (
+          <button
+            onClick={handleLogout}
+            className="hover:underline bg-transparent border-none"
+          >
+            Logout
+          </button>
+        )}
+      </div>
     </nav>
   );
 }

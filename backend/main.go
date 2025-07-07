@@ -5,7 +5,9 @@ import (
 	"bookstore/models"
 	"bookstore/routes"
 	"fmt"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -29,8 +31,22 @@ func main() {
 		fmt.Println("✅ 'books' table exists")
 	}
 
-	// Setup routes
+	// Setup Gin with CORS
 	r := gin.Default()
+
+	// ✅ Enable CORS for React frontend (http://localhost:5173)
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
+
+	// Routes
 	routes.RegisterRoutes(r)
+
+	// Start server
 	r.Run(":8080")
 }
