@@ -13,7 +13,9 @@ function Navbar() {
     <nav className="bg-blue-400 text-white p-4 flex justify-between items-center">
       <h1 className="text-xl font-bold">Bookstore</h1>
       <div className="space-x-4">
-        <Link to="/" className="hover:underline">Books</Link>
+        {isLoggedIn && (
+          <Link to="/" className="hover:underline">Books</Link>
+        )}
         {isLoggedIn && (
           <Link to="/add" className="hover:underline">Add Book</Link>
         )}
@@ -25,8 +27,9 @@ function Navbar() {
         )}
         {isLoggedIn && (
           <button
+            type="button"
             onClick={handleLogout}
-            className="hover:underline bg-transparent border-none"
+            className="hover:underline bg-transparent border-none cursor-pointer"
           >
             Logout
           </button>
