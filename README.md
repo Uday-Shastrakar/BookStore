@@ -1,4 +1,4 @@
-# 🚀 Full Stack Web App – Go + React
+# 🚀 Full Stack Web App – Go backend  + React frontend 
 
 A modern full-stack web application using **Golang** for the backend REST API and **React** for the frontend. Designed to be scalable, fast, and easy to deploy with Docker.
 
